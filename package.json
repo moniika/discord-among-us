@@ -1,0 +1,20 @@
+{
+  "name": "discord-among-us",
+  "version": "1.0.0",
+  "description": "Discord bot to manage among us game.",
+  "main": "bot.js",
+  "keywords": [],
+  "author": "Monica Kozbial",
+  "license": "ISC",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "discord.js": "^12.2.0",
+    "dotenv": "^8.1.0",
+    "keyv": "^4.0.1"
+  },
+  "engines": {
+    "node": "12.x"
+  }
+}
