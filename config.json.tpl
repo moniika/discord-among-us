@@ -1,5 +1,6 @@
 {
   "<your server/guild id>": { 
+    "enableHelpCmd": "true",
     "discordPrefix": "<can be changed to whatever you'd like, recommended: ! or .>",
     "roleIds": {
       "crewmate": "<id of crewmate role>",

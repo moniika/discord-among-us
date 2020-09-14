@@ -12,6 +12,7 @@ This is a Discord bot for managing voice chats during games of Among Us.
 ## Setup Instructions
 
 ### Discord server setup
+
 - Create a ghost and crewmate role in your Discord channel
 - Create a new category to hold your game channels and add the following channels:
   - Text channel "#game" and inside this channel create the following messages and **pin them**:
@@ -22,6 +23,7 @@ This is a Discord bot for managing voice chats during games of Among Us.
   - Voice channel "Ghosts" and optionally set permissions @everyone (View Channel: false) and ghost role (View Channel: true)
 
 ### Code setup
+
 - Open your terminal and navigate to the root folder of the project
 - Install pre-requisites by doing `npm i` or `npm install` in the terminal
 - Generate your access token via [Discord App Developers portal](https://discordapp.com/developers/applications/).
@@ -29,6 +31,7 @@ This is a Discord bot for managing voice chats during games of Among Us.
 - In the project folder, duplicate the `config.json.tpl` and rename it to `config.json` and fill it out with desired prefix for commands, and ids for your Discord server
 
 ### Adding bot to your server
+
 - In the [Discord App Developers portal](https://discordapp.com/developers/applications/) go to Bot and enable "Presence intent" and "Server members intent"
 - Additionally, go to OAuth2
   - select 'bot' scope
@@ -38,6 +41,12 @@ This is a Discord bot for managing voice chats during games of Among Us.
 ## Starting the bot
 
 Simply run the command `npm run start`
+
+### Bot commands
+
+- Use the command: `<discord prefix you set in config>help` to get a message describing bot commands.
+- There are a few commands not described in the help message and you can explore the source code under `handlers/message.js` to find them.
+- The help message can be disabled by setting `"enableHelpCmd"` in `config.json` to `false`
 
 ## Advanced add-ons
 
