@@ -153,8 +153,7 @@ const tryMoveGameVoiceChannel = (member, categoryId, channelStr) => {
  * @param {!Snowflake} categoryId The category id the command came from.
  */
 const tryMoveTableVoiceChannel = (member, categoryId) => {
-  if (!categoryId) console.error('sdfs');
-  //categoryId = getCategoryIdFromVoice(member.voice);
+  if (!categoryId) console.error('expected categoryId');
   tryMoveGameVoiceChannel(member, categoryId, channels.TABLE);
 };
 
@@ -164,7 +163,7 @@ const tryMoveTableVoiceChannel = (member, categoryId) => {
  * @param {!Snowflake} categoryId The category id the command came from.
  */
 const tryMoveGhostsVoiceChannel = (member, categoryId) => { 
-if (!categoryId) console.error('sdfs');
+  if (!categoryId) console.error('expected categoryId');
   tryMoveGameVoiceChannel(member, categoryId, channels.GHOSTS);
 };
 

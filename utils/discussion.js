@@ -53,7 +53,7 @@ const startDiscussion = async (guild, categoryId) => {
     // voiceStateUpdate should mute them as they come in.
     tryMoveTableVoiceChannel(member, categoryId);
   });
-  log(categoryId + 'opened the floor for discussion');
+  log(categoryId + ' opened the floor for discussion');
   setDiscussionOpen(categoryId, true);
 };
 
