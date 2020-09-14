@@ -2,6 +2,9 @@
 
 This is a Discord bot for managing voice chats during games of Among Us.
 
+Using either reactions or bot commands though Discord text channel, you can easily mute/unmute while playing Among Us.
+If desired, you can also set players as ghosts so that when the discussion channel is muted, all the ghosts get moved to their own voice chat to talk and are moved back, and muted, when disussion is un-muted.
+
 ## Prerequisites
 
 - Basic understanding of **JavaScript**
