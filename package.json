@@ -3,9 +3,16 @@
   "version": "1.0.0",
   "description": "Discord bot to manage among us game.",
   "main": "bot.js",
-  "keywords": [],
+  "keywords": [
+    "discord",
+    "among us"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/moniika/discord-among-us.git"
+  },
   "author": "Monica Kozbial",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "scripts": {
     "start": "node bot.js"
   },
