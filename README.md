@@ -1,26 +1,52 @@
-# discord-among-us
-Setup instructions to be updated later.
+## Among Us Discord bot
 
-Rough setup instructions:
-1. Authorize Discord bot with the following permissions:
+This is a Discord bot for managing voice chats during games of Among Us.
 
-2. Create .env file in root folder (same folder as bot.js) with the following contents:
-DISCORD_TOKEN=<replace this with your discord token>
+## Prerequisites
 
-3. Create roles: crewmate and ghost
+- Basic understanding of **JavaScript**
+- Basic knowledge on using your terminal (mac/linux) or command line (windows)
+- Installed [Node JS](https://nodejs.org/en/) installed. (v8.0.0 or above)
+- And a [Discord](https://discordapp.com/) account and desktop client (obviously…)
 
-4. Update config.json with ids based on your server. The structure of config.json is as follows
-(reminder JSON is finicky and may complain about extra commas):
+## Setup Instructions
+
+### Discord server setup
+- Create a ghost and crewmate role in your Discord channel
+- Create a new category to hold your game channels and add the following channels:
+  - Text channel "#game" and inside this channel create the following messages and **pin them**:
+    - A message for joining the game
+    - A message for becoming a ghost
+    - A message for muting/unmuting the discussion table
+  - Voice channel "Around the Table"
+  - Voice channel "Ghosts" and optionally set permissions @everyone (View Channel: false) and ghost role (View Channel: true)
+
+### Code setup
+- Open your terminal and navigate to the root folder of the project
+- Install pre-requisites by doing `npm i` or `npm install` in the terminal
+- Generate your access token via [Discord App Developers portal](https://discordapp.com/developers/applications/).
+- In the project folder, duplicate the `.env.tpl` and rename it to `.env` then open it and add the generated token (from previous step) value there
+- In the project folder, duplicate the `config.json.tpl` and rename it to `config.json` and fill it out with desired prefix for commands, and ids for your Discord server
+
+### Adding bot to your server
+- In the [Discord App Developers portal](https://discordapp.com/developers/applications/) go to Bot and enable "Presence intent" and "Server members intent"
+- Additionally, go to OAuth2
+  - select 'bot' scope
+  - and select the permissions: 'manage roles', 'send messages', 'manage messages', 'read message history', 'add reactions', 'mute members', and 'move members'
+  - and copy the authorization url and add the bot to your Discord server
+
+## Starting the bot
+
+Simply run the command `npm run start`
+
+## Advanced add-ons
+
+- This bot supports config for multiple game categories. To do so, follow the setup of creating additional category and channels and add the ids to config. Example:
+```
 {
   "<your server/guild id>": { 
-    "discordPrefix": "<can be changed to whatever you'd like",
-    "roleIds": {
-      "crewmate": "<id of crewmate role>",
-      "ghost": "<id of ghost role>"
-    },
-    "defaultVoiceChannel": "<id of default voice channel to move people to>",
-    "defaultGameCategory": "<category id of default game to use>",
-    "<category id of game>": {
+    ...
+    "<first game category>": {
       "voiceChannelIds": {
         "table": "<id of discussion channel for game>",
         "ghosts": "<id of ghosts channel for game>"
@@ -32,7 +58,7 @@ DISCORD_TOKEN=<replace this with your discord token>
         "mute": "<id of message for reacting to mute game>"
       }
     },
-    "<optional category id of different game>": {
+    "<additional game category>": {
       "voiceChannelIds": {
         "table": "<id of discussion channel for game>",
         "ghosts": "<id of ghosts channel for game>"
@@ -43,6 +69,8 @@ DISCORD_TOKEN=<replace this with your discord token>
         "addGhost": "<id of message for reacting to turn ghost>",
         "mute": "<id of message for reacting to mute game>"
       }
-    },
+    }
   }
 }
+```
+- In theory, this bot also supports multiple server/guilds but has not been thoroughly tested

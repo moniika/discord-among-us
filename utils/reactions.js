@@ -79,10 +79,10 @@ const handleReactionChange = async (messageReaction, user, onJoin, onGhost, isAd
   const muteMsgId = reactionConfig['mute'];
   if (message.id == joinGameMsgId && isJoinReaction(messageReaction)) {
     const member  = await getMemberFromUser(user, guild);
-    onJoin(member);
+    onJoin(member, categoryId);
   } else if (message.id == addGhostMsgId && isGhostReaction(messageReaction)) {
     const member = await getMemberFromUser(user, guild);
-    onGhost(member);
+    onGhost(member, categoryId);
   } else if (isAdd && message.id == muteMsgId) {
     messageReaction.users.remove(user);
     if (isUnMuteReaction(messageReaction)) {
@@ -102,8 +102,8 @@ const handleReactionChange = async (messageReaction, user, onJoin, onGhost, isAd
 const addEmojisToMsgs = async (joinGameMsg, addGhostMsg, muteMsg) => {
   await addGhostMsg.react(ghostEmoji);
   await joinGameMsg.react(joinEmoji);
-  await muteMsg.react(muteEmoji);
   await muteMsg.react(unMuteEmoji);
+  await muteMsg.react(muteEmoji);
 };
 
 /**

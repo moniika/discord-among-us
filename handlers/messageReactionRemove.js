@@ -12,9 +12,9 @@ module.exports = async (client) => {
         removePlayer(member);
       }
     },
-    (member) => {
+    (member, categoryId) => {
       if (hasGhostRole(member)) {
-        unkillPlayer(member);
+        unkillPlayer(member, categoryId);
       }
     }, false);
   })

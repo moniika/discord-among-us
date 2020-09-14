@@ -1,8 +1,7 @@
 const { memberLog } = require ('../utils/shared.js');
-const { hasGhostRole, hasPlayerRole, unkillPlayer } = require ('../utils/role.js');
+const { hasGhostRole, hasPlayerRole, removeGhost } = require ('../utils/role.js');
 const {
-  isMemberMuted, setMemberMute, tryMoveDefaultVoiceChannel,
-  tryMoveTableVoiceChannel
+  isMemberMuted, setMemberMute,
 } = require ('../utils/voice.js');
 const {
   tryRemoveMemberGhostReaction, tryRemoveMemberJoinReaction
@@ -15,7 +14,6 @@ const { isDiscussionOpen } = require ('../utils/discussion.js');
  */
 const onPlayerJoin = (member) => {
   memberLog(member, 'joined the game');
-  tryMoveTableVoiceChannel(member);
 };
 /**
  * Handles when a player role is removed from a guild member.
@@ -25,9 +23,8 @@ const onRemovePlayer = (member) => {
   memberLog(member, 'removed from the game');
   if (hasGhostRole(member)) {
     memberLog(member, 'removed ghost role from onRemovePlayer', true);
-    unkillPlayer(member);
+    removeGhost(member);
   }
-  tryMoveDefaultVoiceChannel(member);
   tryRemoveMemberJoinReaction(member);
   tryRemoveMemberGhostReaction(member);
 };
@@ -37,7 +34,7 @@ const onRemovePlayer = (member) => {
  */
 const onPlayerDeath = async (member)  => {
   memberLog(member, 'killed');
-  if (await isDiscussionOpen(member.guild.id)) {
+  if (!isMemberMuted(member) && await isDiscussionOpen(member.guild.id)) {
     // Mutes ghost.
     setMemberMute(member, true);
   }
@@ -46,15 +43,10 @@ const onPlayerDeath = async (member)  => {
  * Handles when a ghost role is removed from a guild member.
  * @param {!GuildMember} member The guild member.
  */
-const onPlayerDeathUndo = (member) => {
+const onPlayerDeathUndo = async (member) => {
   memberLog(member, 'un-killed');
-  if (isMemberMuted(member)) {
-    // The only time member is expected to be muted is when they are ghost
-    // in discussion voice chat. Ergo, unmute non-ghost if muted.
+  if (isMemberMuted(member) && await isDiscussionOpen(member.guild.id)) {
     setMemberMute(member, false);
-  }
-  if (isInGhostsVoice(member)) {
-    tryMoveTableVoiceChannel(member);
   }
   tryRemoveMemberGhostReaction(member);
 };
@@ -67,7 +59,7 @@ module.exports = (client) => {
     const wasGhost = hasGhostRole(oldMember);
     const isGhost = hasGhostRole(newMember);
     memberLog(newMember, 'wasPlayer: ' + wasPlayer + ' isPlayer: ' + isPlayer +
-        ' wasGhost: ' + wasGhost + ' isGhost: ' + isGhost)
+        ' wasGhost: ' + wasGhost + ' isGhost: ' + isGhost, true)
     if (!wasPlayer && isPlayer) {  // Added player role.
       onPlayerJoin(newMember);
     } else if (wasPlayer && !isPlayer) {  // Removed player role.

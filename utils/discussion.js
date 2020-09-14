@@ -1,7 +1,7 @@
 const { log } = require ('../utils/shared.js');
 const { hasGhostRole } = require ('../utils/role.js');
 const {
-  channels, forAllInVoiceChannel, isMuted, setMemberMute,
+  channels, forAllInVoiceChannel, isMemberMuted, setMemberMute,
   tryMoveGhostsVoiceChannel, tryMoveTableVoiceChannel,
 } = require ('../utils/voice.js');
 
@@ -51,9 +51,9 @@ const startDiscussion = async (guild, categoryId) => {
   forAllInVoiceChannel(guild, categoryId, channels.GHOSTS, (member) => {
     // Move ghosts to ghosts voice channel when discussion starts.
     // voiceStateUpdate should mute them as they come in.
-    tryMoveTableVoiceChannel(member);
+    tryMoveTableVoiceChannel(member, categoryId);
   });
-  log('Opened the floor for discussion');
+  log(categoryId + 'opened the floor for discussion');
   setDiscussionOpen(categoryId, true);
 };
 
@@ -70,13 +70,13 @@ const endDiscussion = async (guild, categoryId) => {
   forAllInVoiceChannel(guild, categoryId, channels.TABLE, (member) => {
     if (hasGhostRole(member)) {
       // Move ghosts to ghosts voice channel when discussion ends.
-      tryMoveGhostsVoiceChannel(member);
+      tryMoveGhostsVoiceChannel(member, categoryId);
     } else {
       // Mute everyone else.
       setMemberMute(member, true);
     }
   });
-  console.log('Ended discussion');
+  log(categoryId + ' ended discussion');
   setDiscussionOpen(categoryId, false);
 };
 
@@ -88,7 +88,7 @@ const endDiscussion = async (guild, categoryId) => {
 const resetDiscussion = (guild, categoryId) => {
   setDiscussionOpen(categoryId, true);
   forAllInVoiceChannel(guild, categoryId, channels.TABLE, (member) => {
-    if (isMuted(member)) {
+    if (isMemberMuted(member)) {
       // Un-mute everyone
       setMemberMute(member, false);
     }

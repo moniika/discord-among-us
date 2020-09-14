@@ -35,7 +35,7 @@ const isVoiceMuted = (voice) => {
  * @returns {boolean} Whether the member is server muted.
  */
 const isMemberMuted = (member) => {
-  return isVoiceMuted(member.voices);
+  return isVoiceMuted(member.voice);
 };
 
 /**
@@ -121,18 +121,24 @@ const isMemberOnVoice = (member) => {
 /**
  * Tries to move given member to game voice channel.
  * @param {!GuildMember} member The member to move.
+ * @param {!Snowflake} categoryId The category id the command came from.
  * @param {!ChannelStr} channelStr The channel string.
  * @private
  */
-const tryMoveGameVoiceChannel = (member, channelStr) => {
+const tryMoveGameVoiceChannel = (member, categoryId, channelStr) => {
   if (!isMemberOnVoice(member)) return;
-  const categoryId = getCategoryIdFromVoice(member.voice);
   const serverConfig = config[member.guild.id];
-  // If member is not in game category, use default game category.
-  const defaultCategoryId = serverConfig['defaultGameCategory'];
-  console.log(categoryId);
-  const gameConfig =
-      serverConfig[categoryId] || serverConfig[defaultCategoryId];
+  let gameConfig = serverConfig[categoryId];
+  if (!gameConfig) {
+    // If command did not come from game category, try using current voice state.
+    categoryId = getCategoryIdFromVoice(member.voice);
+    gameConfig = serverConfig[categoryId];
+  }
+  if (!gameConfig) {
+    // If current voice state is not in game category, use default game category.
+    categoryId = serverConfig['defaultGameCategory'];
+    gameConfig = serverConfig[categoryId];
+  }
   const targetChannelId = gameConfig['channelIds'][channelStr];
   if (member.voice.channelID != targetChannelId) {
     member.voice.setChannel(targetChannelId).then(() => {
@@ -144,17 +150,22 @@ const tryMoveGameVoiceChannel = (member, channelStr) => {
 /**
  * Tries to move given member to discussion table voice channel.
  * @param {!GuildMember} member The member to move.
+ * @param {!Snowflake} categoryId The category id the command came from.
  */
-const tryMoveTableVoiceChannel = (member) => {
-  tryMoveGameVoiceChannel(member, channels.TABLE);
+const tryMoveTableVoiceChannel = (member, categoryId) => {
+  if (!categoryId) console.error('sdfs');
+  //categoryId = getCategoryIdFromVoice(member.voice);
+  tryMoveGameVoiceChannel(member, categoryId, channels.TABLE);
 };
 
 /**
  * Tries to move given member to ghosts voice channel.
  * @param {!GuildMember} member The member to move.
+ * @param {!Snowflake} categoryId The category id the command came from.
  */
-const tryMoveGhostsVoiceChannel = (member) => {
-  tryMoveGameVoiceChannel(member, channels.GHOSTS);
+const tryMoveGhostsVoiceChannel = (member, categoryId) => { 
+if (!categoryId) console.error('sdfs');
+  tryMoveGameVoiceChannel(member, categoryId, channels.GHOSTS);
 };
 
 /**
@@ -176,6 +187,7 @@ const tryMoveDefaultVoiceChannel = (member) => {
  * Returns whether the given member is in a ghosts voice channel.
  * @param {!GuildMemeber} vmemberoice The member to check.
  * @returns {boolean} Whether the member is in ghosts channel.
+ * @private unused in current implementation
  */
 const isInGhostsVoice = (member) => {
   if (!isMemberOnVoice(member)) return false;
@@ -203,7 +215,6 @@ module.exports = {
   channels,
   forAllInVoiceChannel,
   getCategoryIdFromVoice,
-  isInGhostsVoice,
   isMemberMuted,
   isMemberOnVoice,
   isVoiceConnected,

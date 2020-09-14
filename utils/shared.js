@@ -1,7 +1,7 @@
 const config = require ('../config');
 
 // For debugging, to enable verbose log.
-const debuglog = true;
+const enableDebugLogs = false;
 
 /**
  * Returns the specified member's display name. 
@@ -18,7 +18,7 @@ const getName = (member) => {
  * @param {isDebugLog} [isDebugLog=false] Whether the log is a debug log.
  */
 const log = (content, isDebugLog = false) => {
-  if (!isDebugLog || debuglog) {
+  if (!isDebugLog || enableDebugLogs) {
     console.log(content);
   }
 };
@@ -30,7 +30,7 @@ const log = (content, isDebugLog = false) => {
  * @param {isDebugLog} [isDebugLog=false] Whether the log is a debug log.
  */
 const memberLog = (member, content, isDebugLog = false) => {
-  if (!isDebugLog || debuglog) {
+  if (!isDebugLog || enableDebugLogs) {
     console.log(getName(member) + ': ' + content);
   }
 };

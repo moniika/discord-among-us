@@ -15,6 +15,7 @@ const { MessageEmbed } = require('discord.js');
  * @param {!TextChannel} channel The channel to send the message to.
  */
 const sendHelpMessage = (channel) => {
+  const discordPrefix = config[channel.guild.id]['discordPrefix'];
   const embed = new MessageEmbed()
       // Set the title of the field
       .setTitle('Lets play Among Us!')
@@ -25,28 +26,28 @@ const sendHelpMessage = (channel) => {
       `**To join the Game**
       - Connect to Around the Table voice chat AND
       - React with \:thumbsup: to the pinned message (in #game) OR
-      - Use bot command: !join or !play
+      - Use bot command: ${discordPrefix}join or ${discordPrefix}play
       
       **During the game**
       - Don't forget to mute the disussion table when you're not around the button
       - React with \:mute: or \:sound: to the pinned message (in #game) to mute/unmute discussion OR
-      - Use bot commmands: !quiet or !mute to mute and !discuss or !unmute to unmute (in #game)
+      - Use bot commmands: ${discordPrefix}quiet or ${discordPrefix}mute to mute and ${discordPrefix}discuss or ${discordPrefix}unmute to unmute (in #game)
       
       **When you become a sad ghost**
       - React with \:ghost: to the pinned message (in #game) OR
-      - Use bot command: !rip or !iamdead
+      - Use bot command: ${discordPrefix}rip or ${discordPrefix}iamdead
       - When the discussion voice chat is muted, you will be automatically moved to Ghosts voice chat where you can freely chat.
       - When the discussion voice chat is un-muted, you will be automatically moved to (and muted in) the discussion chat so you can listen in.
       
       **To restart the game**
-      - Use !restart to remove all ghost roles for users in the current game (use in #game)
-      - Use !reset to remove all game roles.
+      - Use ${discordPrefix}restart to remove all ghost roles for users in the current game (use in #game)
+      - Use ${discordPrefix}reset to remove all game roles.
       
       **Other bot commands**
-      - !kill @user -> sets ghost role for mentioned user(s)
-      - !unkill @user -> unsets ghost role for mentioned user(s)
-      - !clear -> clears unpinned messages (use in #game)
-      - !add @user -> Adds all mentioned users to the game`);
+      - ${discordPrefix}kill @user -> sets ghost role for mentioned user(s)
+      - ${discordPrefix}unkill @user -> unsets ghost role for mentioned user(s)
+      - ${discordPrefix}clear -> clears unpinned messages (use in #game)
+      - ${discordPrefix}add @user -> Adds all mentioned users to the game`);
   channel.send(embed);
 };
 
@@ -57,10 +58,11 @@ const sendHelpMessage = (channel) => {
  */
 const resetAllGames = (guild) => {
   clearGameRoles(guild);
-  forEachGameCategoryConfig(msg.guild.id, (categoryId, _) => {
+  forEachGameCategoryConfig(guild.id, (categoryId) => {
     resetGameMsgReactions(guild, categoryId);
     resetDiscussion(guild, categoryId);    
   });
+  log(guild.id + ' all games reset');
 };
 
 /**
@@ -71,7 +73,7 @@ const clearTextChannel = (channel) => {
   channel.messages.fetch({limit: 99}).then(messages => {
     const getUnpinned = messages.filter(message => !message.pinned);
     channel.bulkDelete(getUnpinned)
-    log(channelId + ' has been cleared', true);
+    log(channel.id + ' has been cleared');
   }).catch(console.error);
 };
 
@@ -84,6 +86,7 @@ const restartGame = (guild, categoryId) => {
   resetGameRoles(guild, categoryId);
   resetGameMsgReactions(guild, categoryId);
   resetDiscussion(guild, categoryId);
+  log(categoryId + ' game restarted');
 };
 
 /** 
@@ -97,58 +100,70 @@ const isGame = (guildId, categoryId) => {
 };
 
 const handleCommand = (command, msg, client) => {
-  let deleteMsg = true;
   const categoryId = msg.channel.parentID;
   command = command.toLowerCase();
-   
+  
+  let deleteMsg = false;
   switch(command) {
     case 'explain':
     case 'help':
-      sendHelpMessage(msg.channel);
-      return;
+      let helpCmdEnabled = config[msg.guild.id]['enableHelpCmd'];
+      if (helpCmdEnabled == 'true') {
+        sendHelpMessage(msg.channel);
+        deleteMsg = true;
+      }
+      break;
     case 'reset':
       resetAllGames(msg.guild);
+      deleteMsg = true;
       break; 
     case 'join':
     case 'play':
-      addPlayer(msg.member);
+      addPlayer(msg.member, categoryId);
+      deleteMsg = true;
       break;
     case 'add':
       msg.mentions.members.forEach(member => {
-        addPlayer(member);
+        addPlayer(member, categoryId);
       });
+      deleteMsg = true;
       break;
     case 'leave':
       removePlayer(msg.member);
+      deleteMsg = true;
       break;      
     case 'remove':
       msg.mentions.members.forEach(member => {
         removePlayer(member);
       });
+      deleteMsg = true;
       break;
     case 'iamdead':
     case 'rip':
     case 'dead':
     case 'ghost':
-      killPlayer(msg.member);
+      killPlayer(msg.member, categoryId);
+      deleteMsg = true;
       break; 
     case 'kill':
       msg.mentions.members.forEach(member => {
-        killPlayer(member);
+        killPlayer(member, categoryId);
       });
+      deleteMsg = true;
       break;
     case 'unkill':
       msg.mentions.members.forEach(member => {
-        unkillPlayer(member);
+        unkillPlayer(member, categoryId);
       });
+      deleteMsg = true;
       break;
-  }
-  
+  } 
   if (isGame(msg.guild.id, categoryId)) {
-    // Handle commands that only within a game channel.
+    // Handle commands that only work within a game text channel.
     switch(command) {
       case 'restart':
-        restartGame(guild, categoryId);
+        restartGame(msg.guild, categoryId);
+        deleteMsg = true;
         break;
       case 'clear':
         // Delete msg before clearing channel.
@@ -160,15 +175,17 @@ const handleCommand = (command, msg, client) => {
       case 'mute':
       case 'quiet':
         endDiscussion(msg.guild, categoryId);
+        deleteMsg = true;
         break;
       case 'unmute':
       case 'discuss':
         startDiscussion(msg.guild, categoryId);
+        deleteMsg = true;
         break;
     } 
-    if (deleteMsg) {
-      msg.delete().catch(console.error);
-    }
+  }
+  if (deleteMsg) {
+    msg.delete().catch(console.error);
   }
 };
 

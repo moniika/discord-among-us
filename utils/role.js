@@ -1,6 +1,10 @@
 const config = require('../config');
 const { log, memberLog } = require('../utils/shared.js');
 const { getCategoryIdFromVoice }  = require('../utils/voice.js');
+const {
+  isMemberMuted, setMemberMute, tryMoveDefaultVoiceChannel,
+  tryMoveTableVoiceChannel,
+} = require ('../utils/voice.js');
 
 /**
  * Role string id.
@@ -53,19 +57,21 @@ const hasPlayerRole = (member) => {
 };
 
 /**
- * Adds player role to specified memeber. 
+ * Adds player role to member and moves to discussion voice channel. 
  * @param {!GuildMember} member The guild member to add role to.
+ * @param {!Snowflake} categoryId The category id.
  */
-const addPlayer = (member) => {
+const addPlayer = (member, categoryId) => {
   if (hasPlayerRole(member)) {
     memberLog(member, 'already part of the crew');
     return;
   }
   member.roles.add(getRoleId(member.guild.id, roles.CREWMATE)).catch(console.error);
+  tryMoveTableVoiceChannel(member, categoryId);
 };
 
 /**
- * Removes player role from specified memeber. 
+ * Removes player role from member and moves to default voice channel. 
  * @param {!GuildMember} member The guild member to add role to.
  */
 const removePlayer = (member) => {
@@ -74,15 +80,17 @@ const removePlayer = (member) => {
     return;
   }
   member.roles.set([]).catch(console.error);
+  tryMoveDefaultVoiceChannel(member);
 };
 
 /**
- * Adds ghost role to specified memeber. 
+ * Adds ghost role to member, if they have player role as well. 
  * @param {!GuildMember} member The guild member to add role to.
+ * @param {!Snowflake} categoryId The category id.
  */
-const killPlayer = (member) => {
+const killPlayer = (member, categoryId) => {
   if (!hasPlayerRole(member)) {
-    memberLog(member, 'ignoring non-player', true);
+    memberLog(member, 'ignoring non-player kill');
     return;
   }
   if (hasGhostRole(member)) {
@@ -93,15 +101,25 @@ const killPlayer = (member) => {
 };
 
 /**
- * Removes player role from specified memeber. 
+ * Removes ghost role from specified member. 
  * @param {!GuildMember} member The guild member to add role to.
  */
-const unkillPlayer = (member) => {
+const removeGhost = (member) => {
   if (!hasGhostRole(member)) {
     memberLog(member, 'was not ghost... what happened here?', true);
     return;
   }
   member.roles.remove(getRoleId(member.guild.id, roles.GHOST)).catch(console.error);
+};
+
+/**
+ * Removes ghost role from player and moves to discussion voice channel.
+ * @param {!GuildMember} member The guild member to add role to.
+ * @param {!Snowflake} categoryId The category id.
+ */
+const unkillPlayer = (member, categoryId) => {
+  removeGhost(member);
+  tryMoveTableVoiceChannel(member, categoryId);
 };
 
 /**
@@ -139,6 +157,7 @@ const clearGameRoles = (guild) => {
   const gameRoles = [crewRoleId, ghostRoleId];
   forEachWithRoles(guild, gameRoles, (member) => {
     member.roles.remove(gameRoles).catch(console.error);
+    tryMoveDefaultVoiceChannel(member);
   });
   // Notes: remove is async, so roles may not yet all be cleared.
   log('Cleared roles', true);
@@ -157,7 +176,7 @@ const resetGameRoles = (guild, categoryId) => {
       unkillPlayer(member);
     }
   });
-  log('All roles in chId:' + channelId + ' have been reset', true);
+  log('All roles in categoryId:' + categoryId + ' have been reset', true);
 };
 
 module.exports = {
@@ -166,6 +185,7 @@ module.exports = {
   hasGhostRole,
   hasPlayerRole,
   killPlayer,
+  removeGhost,
   removePlayer,
   resetGameRoles,
   unkillPlayer,
