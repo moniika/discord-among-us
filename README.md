@@ -48,7 +48,7 @@ Simply run the command `npm run start`
 ### Bot commands
 
 - Use the command: `<discord prefix you set in config>help` to get a message describing bot commands.
-- There are a few commands not described in the help message and you can explore the source code under `handlers/message.js` to find them.
+- There are a few commands not described in the help message and you can explore the source code under `handilers/message.js` to find them.
 - The help message can be disabled by setting `"enableHelpCmd"` in `config.json` to `false`
 
 ## Advanced add-ons
@@ -59,7 +59,7 @@ Simply run the command `npm run start`
   "<your server/guild id>": { 
     ...
     "<first game category>": {
-      "voiceChannelIds": {
+      "channelIds": {
         "table": "<id of discussion channel for game>",
         "ghosts": "<id of ghosts channel for game>"
       },
@@ -71,7 +71,7 @@ Simply run the command `npm run start`
       }
     },
     "<additional game category>": {
-      "voiceChannelIds": {
+      "channelIds": {
         "table": "<id of discussion channel for game>",
         "ghosts": "<id of ghosts channel for game>"
       },
