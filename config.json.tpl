@@ -9,7 +9,7 @@
     "defaultVoiceChannel": "<id of default voice channel to move people to>",
     "defaultGameCategory": "<category id of default game to use>",
     "<category id of game>": {
-      "channelIds": {
+      "voiceChannelIds": {
         "table": "<id of discussion channel for game>",
         "ghosts": "<id of ghosts channel for game>"
       },

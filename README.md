@@ -59,7 +59,7 @@ Simply run the command `npm run start`
   "<your server/guild id>": { 
     ...
     "<first game category>": {
-      "channelIds": {
+      "voiceChannelIds": {
         "table": "<id of discussion channel for game>",
         "ghosts": "<id of ghosts channel for game>"
       },
@@ -71,7 +71,7 @@ Simply run the command `npm run start`
       }
     },
     "<additional game category>": {
-      "channelIds": {
+      "voiceChannelIds": {
         "table": "<id of discussion channel for game>",
         "ghosts": "<id of ghosts channel for game>"
       },

@@ -67,7 +67,7 @@ const setMemberMute = (member, mute) => {
 const getVoiceChannelId = (guildId, categoryId, channelStr) => {
   const gameCategoryConfig = config[guildId][categoryId];
   if (!gameCategoryConfig) return null;
-  return gameCategoryConfig['channelIds'][channelStr];
+  return gameCategoryConfig['voiceChannelIds'][channelStr];
 };
 
 /**
@@ -139,7 +139,7 @@ const tryMoveGameVoiceChannel = (member, categoryId, channelStr) => {
     categoryId = serverConfig['defaultGameCategory'];
     gameConfig = serverConfig[categoryId];
   }
-  const targetChannelId = gameConfig['channelIds'][channelStr];
+  const targetChannelId = gameConfig['voiceChannelIds'][channelStr];
   if (member.voice.channelID != targetChannelId) {
     member.voice.setChannel(targetChannelId).then(() => {
       memberLog(member, 'moved to ' + channelStr, true);
