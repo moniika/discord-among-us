@@ -49,7 +49,7 @@ const startDiscussion = async (guild, categoryId) => {
     }
   });
   forAllInVoiceChannel(guild, categoryId, channels.GHOSTS, (member) => {
-    // Move ghosts to ghosts voice channel when discussion starts.
+    // Move ghosts to table voice channel when discussion starts.
     // voiceStateUpdate should mute them as they come in.
     tryMoveTableVoiceChannel(member, categoryId);
   });
