@@ -1,7 +1,7 @@
 const { memberLog } = require ('../utils/shared.js');
 const { hasGhostRole, hasPlayerRole, removeGhost } = require ('../utils/role.js');
 const {
-  isMemberMuted, setMemberMute,
+  isMemberMuted, isVoiceInDiscussion, setMemberMute,
 } = require ('../utils/voice.js');
 const {
   tryRemoveMemberGhostReaction, tryRemoveMemberJoinReaction
@@ -19,11 +19,15 @@ const onPlayerJoin = (member) => {
  * Handles when a player role is removed from a guild member.
  * @param {!GuildMember} member The guild member.
  */
-const onRemovePlayer = (member) => {
+const onRemovePlayer = async (member) => {
   memberLog(member, 'removed from the game');
   if (hasGhostRole(member)) {
     memberLog(member, 'removed ghost role from onRemovePlayer', true);
     removeGhost(member);
+  }
+  if (isMemberMuted(member) && await isDiscussionOpen(member.guild.id)) {
+    // Unmutes member if discussion is open.
+    setMemberMute(member, false);
   }
   tryRemoveMemberJoinReaction(member);
   tryRemoveMemberGhostReaction(member);

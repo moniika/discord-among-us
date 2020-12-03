@@ -23,7 +23,7 @@ module.exports = (client) => {
     } else if (isVoiceMuted(newState)) {
       // Un-mute if muted and not in discussion.
       setVoiceMute(newState, false);
-      memberLog(member, 'unmuted as they entered discussion voice', true);
+      memberLog(member, 'unmuted', true);
     }
   }
 });
